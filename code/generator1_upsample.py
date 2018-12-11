@@ -6,7 +6,7 @@ from utils.pointnet_util import pointnet_sa_module, pointnet_fp_module
 def get_gen_model(point_cloud, is_training, scope, bradius = 1.0, reuse=None,use_bn = False,use_ibn = False,
                   use_normal=False,bn_decay=None, up_ratio = 4,num_addpoint=600,idx=None,is_crop=False):
 
-    print "Crop flag is ",is_crop
+    print("Crop flag is ",is_crop)
 
     with tf.variable_scope(scope,reuse=reuse) as sc:
         batch_size = point_cloud.get_shape()[0].value

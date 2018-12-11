@@ -76,7 +76,7 @@ def sampling_from_face(face):
 class GKNN():
     def __init__(self, point_path, edge_path=None, mesh_path=None, patch_size=1024, patch_num=30, clean_point_path = None,
                  normalization=False, add_noise=False):
-        print point_path,edge_path,mesh_path
+        print(point_path,edge_path,mesh_path)
         self.name = point_path.split('/')[-1][:-4]
         self.data = np.loadtxt(point_path)
         self.data = self.data[:,0:3]
@@ -96,7 +96,7 @@ class GKNN():
         # self.data = np.dot(self.data, rotation_matrix)
         #####
         if clean_point_path is not None:
-            print "Use clean data to construct the graph", clean_point_path
+            print("Use clean data to construct the graph", clean_point_path)
             self.clean_data = np.loadtxt(clean_point_path)[:, 0:3]
             assert len(self.clean_data) == len(self.data)
         else:
@@ -107,28 +107,28 @@ class GKNN():
         self.furthest_distance = np.amax(np.sqrt(np.sum((self.data - self.centroid) ** 2, axis=-1)), keepdims=True)
 
         if normalization:
-            print "Normalize the point data"
+            print("Normalize the point data")
             self.data = (self.data-self.centroid)/self.furthest_distance
             if clean_point_path is not None:
                 self.clean_data = (self.clean_data-self.centroid)/self.furthest_distance
             else:
                 self.clean_data = self.data
         if add_noise:
-            print "Add gaussian noise into the point"
+            print("Add gaussian noise into the point")
             self.data = jitter_perturbation_point_cloud(np.expand_dims(self.data,axis=0), sigma=self.furthest_distance * 0.004,
                                                         clip=self.furthest_distance * 0.01)
             self.data = self.data[0]
 
-        print "Total %d points" % len(self.data)
+        print("Total %d points" % len(self.data))
 
         if edge_path is not None:
             self.edge = np.loadtxt(edge_path)
-            print "Total %d edges" % len(self.edge)
+            print("Total %d edges" % len(self.edge))
         else:
             self.edge = None
         if mesh_path is not None:
             self.face = load_off(mesh_path)
-            print "Total %d faces" % len(self.face)
+            print("Total %d faces" % len(self.face))
         else:
             self.face = None
         self.patch_size = patch_size
@@ -142,17 +142,17 @@ class GKNN():
         for item,dist in zip(idxs,dists):
             item = item[dist<0.07] #use 0.03 for chair7 model; otherwise use 0.05
             self.graph.append(set(item))
-        print "Build the graph cost %f second" % (time.time() - start)
+        print("Build the graph cost %f second" % (time.time() - start))
 
         self.graph2 = pygraph.classes.graph.graph()
-        self.graph2.add_nodes(xrange(len(self.clean_data)))
+        self.graph2.add_nodes(range(len(self.clean_data)))
         sid = 0
         for idx, dist in zip(idxs, dists):
             for eid, d in zip(idx, dist):
                 if not self.graph2.has_edge((sid, eid)) and eid < len(self.clean_data):
                     self.graph2.add_edge((sid, eid), d)
             sid = sid + 1
-        print "Build the graph cost %f second" % (time.time() - start)
+        print("Build the graph cost %f second" % (time.time() - start))
 
         return
 
@@ -172,7 +172,7 @@ class GKNN():
 
     def geodesic_knn(self, seed=0, patch_size=1024):
         _, dist = pygraph.algorithms.minmax.shortest_path(self.graph2, seed)
-        dist_list = np.asarray([dist[item] if dist.has_key(item) else 10000 for item in xrange(len(self.data))])
+        dist_list = np.asarray([dist[item] if item in dist else 10000 for item in range(len(self.data))])
         idx = np.argsort(dist_list)
         return idx[:patch_size]
 
@@ -189,7 +189,7 @@ class GKNN():
 
     def estimate_density(self):
         self.density=[]
-        for id in tqdm(xrange(len(self.data))):
+        for id in tqdm(range(len(self.data))):
             dist = self.estimate_single_density(id)
             self.density.append(dist)
         self.density = np.asarray(self.density)
@@ -199,7 +199,7 @@ class GKNN():
     def get_seed_fromdensity(self,seed_num,idx=None):
         if idx is None:
             candidata_num = min(len(self.data), seed_num * 50)
-            print "Total %d candidata random points" % candidata_num
+            print("Total %d candidata random points" % candidata_num)
             idx = np.random.permutation(len(self.data))[:candidata_num]
         density = []
         for item in tqdm(idx):
@@ -248,7 +248,7 @@ class GKNN():
         subedge = self.edge[idx[second_dist < threshold]]
         # subedge = self.edge[np.sum(dist<threshold,axis=0)>=2]
         if len(subedge)==0:
-            print "No subedge"
+            print("No subedge")
             subedge = np.asarray([[10,10,10,20,20,20]])
         return subedge
 
@@ -304,7 +304,7 @@ class GKNN():
                 else:
                     idx = self.bfs_knn(seed, patch_size)
             except:
-                print "has exception"
+                print("has exception")
                 continue
             idxx = np.random.permutation(patch_size)[:self.patch_size]
             idxx.sort()
@@ -325,7 +325,7 @@ class GKNN():
                 dist_min=np.zeros((point.shape[0],1))
             t2 = time.time()
             # print t1-t0, t2-t1
-            print "patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge),len(subface))
+            print("patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge),len(subface)))
 
 
             np.savetxt('%s/%s_%d.xyz' % (save_root_path, self.name, i), point, fmt='%0.6f')
@@ -401,7 +401,7 @@ class GKNN():
                     else:
                         idx = self.bfs_knn(seed, patch_size)
                 except:
-                    print "has exception"
+                    print("has exception")
                     continue
                 idxx = np.random.permutation(patch_size)[:self.patch_size]
                 idxx.sort()
@@ -417,7 +417,7 @@ class GKNN():
                 subface = self.get_subface(face_dist)
                 t2 = time.time()
                 # print t1-t0, t2-t1
-                print "patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge), len(subface))
+                print("patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge), len(subface)))
 
                 dist_min = np.reshape(np.min(edge_dist, axis=-1), [-1, 1])
                 np.savetxt('%s/%s_%d.xyz' % (save_root_path, self.name, i), point, fmt='%0.6f')
@@ -478,7 +478,7 @@ class GKNN():
                 else:
                     idx = self.bfs_knn(seed, patch_size)
             except:
-                print "has exception"
+                print("has exception")
                 continue
             idxx = np.random.permutation(patch_size)[:self.patch_size]
             idxx.sort()
@@ -493,7 +493,7 @@ class GKNN():
             subface = self.get_subface(face_dist)
             t2 = time.time()
             # print t1-t0, t2-t1
-            print "patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge),len(subface))
+            print("patch:%d  point:%d  subedge:%d  subface:%d" % (i, patch_size, len(subedge),len(subface)))
 
             dist_min = np.reshape(np.min(edge_dist, axis=-1),[-1,1])
             np.savetxt('%s/%s_%d.xyz' % (save_root_path, self.name, i), point, fmt='%0.6f')
@@ -513,7 +513,7 @@ if __name__ == '__main__':
     t1 = time.time()
     gm.crop_patch('/home/lqyu/server/proj49/PointSR_data/virtualscan/a2',use_dijkstra=True,id=0,scale_ratio=2)
     t3 = time.time()
-    print "use is %f"%(t3-t1)
+    print("use is %f"%(t3-t1))
 
 def query_neighbor(pred_pts, sample_pts, radius=None):
     if np.isscalar(radius):

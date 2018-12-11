@@ -33,8 +33,8 @@ parser.add_argument('--assign_model_path',default=None, help='Pre-trained model 
 parser.add_argument('--use_uniformloss',type= bool, default=False, help='Use uniformloss [default: False]')
 
 FLAGS = parser.parse_args()
-print socket.gethostname()
-print FLAGS
+print(socket.gethostname())
+print(FLAGS)
 
 ASSIGN_MODEL_PATH=FLAGS.assign_model_path
 USE_UNIFORM_LOSS = FLAGS.use_uniformloss
@@ -181,7 +181,7 @@ class Network(object):
 
             ###assign the generator with another model file
             if assign_model_path is not None:
-                print "Load pre-train model from %s" % (assign_model_path)
+                print("Load pre-train model from %s" % (assign_model_path))
                 assign_saver = tf.train.Saver(
                     var_list=[var for var in tf.trainable_variables() if var.name.startswith("generator")])
                 assign_saver.restore(self.sess, assign_model_path)
@@ -189,7 +189,7 @@ class Network(object):
             ##read data
             self.fetchworker = data_provider.Fetcher(BATCH_SIZE, NUM_POINT)
             self.fetchworker.start()
-            for epoch in tqdm(range(restore_epoch, MAX_EPOCH + 1), ncols=45):
+            for epoch in tqdm(list(range(restore_epoch, MAX_EPOCH + 1)), ncols=45):
                 log_string('**** EPOCH %03d ****\t' % (epoch))
                 self.train_one_epoch()
                 if epoch % 20 == 0:
@@ -238,7 +238,7 @@ class Network(object):
             if step % 100 ==0:
                 loss_sum = np.asarray(loss_sum)
                 log_string('step: %d edge_loss: %f\n' % (step, round(loss_sum.mean(), 4)))
-                print 'datatime:%s edge_loss:%f' % (round(fetch_time, 4), round(loss_sum.mean(), 4))
+                print('datatime:%s edge_loss:%f' % (round(fetch_time, 4), round(loss_sum.mean(), 4)))
                 loss_sum = []
 
 
@@ -269,7 +269,7 @@ class Network(object):
         ## FPS sampling
         seed = farthest_point_sample(seed1_num*2, points).eval()[0]
         seed_list = seed[:seed1_num]
-        print "farthest distance sampling cost", time.time() - start
+        print("farthest distance sampling cost", time.time() - start)
         ratios = np.random.uniform(1.0,1.0,size=[seed1_num])
 
         input_list = []
@@ -277,7 +277,7 @@ class Network(object):
         up_edge_list = []
         up_edgedist_list = []
         fail = 0
-        for seed,ratio in tqdm(zip(seed_list,ratios)):
+        for seed,ratio in tqdm(list(zip(seed_list,ratios))):
             try:
                 patch_size = int(NUM_POINT * ratio)
                 idx = np.asarray(gm.bfs_knn(seed,patch_size))
@@ -298,13 +298,13 @@ class Network(object):
             up_point_list.append(up_point)
             up_edge_list.append(up_edgepoint)
             up_edgedist_list.append(up_edgedist)
-        print "total %d fails" % fail
+        print("total %d fails" % fail)
 
         input = np.concatenate(input_list,axis=0)
         pred = np.concatenate(up_point_list,axis=0)
 
         pred_edge = np.concatenate(up_edge_list, axis=0)
-        print "total %d edgepoint" % pred_edge.shape[0]
+        print("total %d edgepoint" % pred_edge.shape[0])
         pred_edgedist = np.concatenate(up_edgedist_list,axis=0)
         rgba = data_provider.convert_dist2rgba(pred_edgedist, scale=10)
         pred_edge = np.hstack((pred_edge, rgba, pred_edgedist.reshape(-1, 1)))
@@ -315,7 +315,7 @@ class Network(object):
     def test_hierarical_prediction(self, input_folder=None, save_path=None):
         self.saver = tf.train.Saver()
         _, restore_model_path = model_utils.pre_load_checkpoint(MODEL_DIR)
-        print restore_model_path
+        print(restore_model_path)
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -327,14 +327,14 @@ class Network(object):
             samples.sort()
             for point_path in samples:
                 edge_path = None
-                print point_path, edge_path
+                print(point_path, edge_path)
                 start = time.time()
                 gm = GKNN(point_path, edge_path, patch_size=NUM_POINT, patch_num=30,add_noise=False,normalization=True)
 
                 ##get the edge information
                 _,pred,pred_edge = self.pc_prediction(gm,sess,patch_num_ratio=3, edge_threshold=0.05)
                 end = time.time()
-                print "total time: ",end-start
+                print("total time: ",end-start)
 
                 #path = os.path.join(save_path, point_path.split('/')[-1][:-4] + "_input.xyz")
                 #data_provider.save_xyz(path, gm.data)
@@ -345,7 +345,7 @@ class Network(object):
                 path = os.path.join(save_path, point_path.split('/')[-1][:-4] + "_outputedge.ply")
                 data_provider.save_ply(path, pred_edge)
 
-            print total_time/len(samples)
+            print(total_time/len(samples))
 
 
 if __name__ == "__main__":

@@ -5,5 +5,5 @@ utils/*.pyc
 *.swp
 *~
 code/.idea/*
-
-
+eval_result/
+*.pkl

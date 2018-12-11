@@ -52,7 +52,7 @@ def get_perulsion_loss1_orthdistance(pred, normal, nsample=15, radius=0.07, knn=
         h = np.sqrt(0.001)*2
     else:
         h = 0.001
-    print "h is ", h
+    print("h is ", h)
 
     val = tf.maximum(0.0, h + val)  # dd/np.sqrt(n)
     uniform_loss = tf.reduce_mean(val)
@@ -84,7 +84,7 @@ def get_perulsion_loss(pred, nsample=15, radius=0.07, knn=False, numpoint=4096, 
         h = np.sqrt(0.001)*2
     else:
         h = 0.001
-    print "h is ",h
+    print("h is ",h)
     val = tf.maximum(0.0, h + val) # dd/np.sqrt(n)
     perulsion_loss = tf.reduce_mean(val)
     return perulsion_loss
@@ -440,10 +440,10 @@ if __name__ == '__main__':
     config.allow_soft_placement = True
     with tf.Session(config=config) as sess:
         start = time.time()
-        for i in xrange(10):
+        for i in range(10):
             dist2 = sess.run(dist)
-        print time.time()-start
-        print dist2
+        print(time.time()-start)
+        print(dist2)
 
     exit()
 
@@ -454,12 +454,12 @@ if __name__ == '__main__':
     points = np.expand_dims(a[:,0:3],axis=0)
     lines = np.expand_dims(b,axis=0)
     project, dist1 = projected_point_np(points, lines)
-    print dist1.shape
+    print(dist1.shape)
 
     start = time.time()
-    for i in xrange(1):
+    for i in range(1):
         dist1 = projected_point_np(points, lines)
-    print time.time() - start
+    print(time.time() - start)
     points = tf.constant(points)
     segment0 = tf.constant(lines)
     dist = projected_point(points, segment0)
@@ -469,8 +469,8 @@ if __name__ == '__main__':
     config.allow_soft_placement = True
     with tf.Session(config=config) as sess:
         start = time.time()
-        for i in xrange(1):
+        for i in range(1):
             dist2 = sess.run(dist)
-        print time.time()-start
+        print(time.time()-start)
 
-        print np.all(dist1==dist2)
+        print(np.all(dist1==dist2))

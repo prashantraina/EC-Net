@@ -1,4 +1,4 @@
-import Queue
+import queue
 import os
 import threading
 import h5py
@@ -84,8 +84,8 @@ def load_patch_data(skip_rate = 1):
 
     object_name = list(set([item.split('/')[-1].split('_')[0] for item in name]))
     object_name.sort()
-    print "load object names {}".format(object_name)
-    print "total %d samples" % (len(input))
+    print("load object names {}".format(object_name))
+    print("total %d samples" % (len(input)))
     return input, dist, edge, data_radius, name
 
 
@@ -168,7 +168,7 @@ def rotate_perturbation_point_cloud(batch_data, angle_sigma=0.03, angle_clip=0.0
         Return:
           BxNx3 array, rotated batch of point clouds
     """
-    for k in xrange(batch_data.shape[0]):
+    for k in range(batch_data.shape[0]):
         angles = np.clip(angle_sigma*np.random.randn(3), -angle_clip, angle_clip)
         Rx = np.array([[1,0,0],
                        [0,np.cos(angles[0]),-np.sin(angles[0])],
@@ -255,7 +255,7 @@ def nonuniform_sampling(num = 4096, sample_num = 1024):
 class Fetcher(threading.Thread):
     def __init__(self, batch_size, num_point):
         super(Fetcher,self).__init__()
-        self.queue = Queue.Queue(40)
+        self.queue = queue.Queue(40)
         self.stopped = False
         self.batch_size = batch_size
         self.num_point = num_point
@@ -280,7 +280,7 @@ class Fetcher(threading.Thread):
 
         self.sample_cnt = self.input_data.shape[0]
         self.num_batches = self.sample_cnt//self.batch_size
-        print "NUM_BATCH is %s"%(self.num_batches)
+        print("NUM_BATCH is %s"%(self.num_batches))
 
     def run(self):
         while not self.stopped:
@@ -305,7 +305,7 @@ class Fetcher(threading.Thread):
                 point_order0 = np.tile(np.reshape(np.arange(self.batch_size),(self.batch_size,1)),(1,point_order.shape[1]))
                 point_order = np.stack([point_order0,point_order],axis=-1)
                 # #shuffle the order of points
-                for i in xrange(batch_data_input.shape[0]):
+                for i in range(batch_data_input.shape[0]):
                     idx,new_idx = get_inverse_index(batch_data_input.shape[1])
                     batch_data_input[i]=batch_data_input[i][idx]
                     batch_data_dist[i]= batch_data_dist[i][idx]
@@ -332,7 +332,7 @@ class Fetcher(threading.Thread):
 
     def shutdown(self):
         self.stopped = True
-        print "Shutdown ....."
+        print("Shutdown .....")
         while not self.queue.empty():
             self.queue.get()
-        print "Remove all queue data"
+        print("Remove all queue data")

@@ -88,8 +88,8 @@ class Mesh:
                 XYZ = faceLine.split()
                 self.faces.append([index[int(XYZ[1])], index[int(XYZ[2])], index[int(XYZ[3])]])
                 if not (int(XYZ[0]) == 3):
-                    print "ERROR: This OFF loader can only handle meshes with 3 vertex faces."
-                    print "A face with", XYZ[0], "vertices is included in the file. Exiting."
+                    print("ERROR: This OFF loader can only handle meshes with 3 vertex faces.")
+                    print("A face with", XYZ[0], "vertices is included in the file. Exiting.")
                     sys.exit(0)
             self.nVerts = len(self.verts)
             self.nFaces = len(self.faces)
@@ -101,8 +101,8 @@ class Mesh:
                 XYZ = faceLine.split()
                 self.faces.append((int(XYZ[1]), int(XYZ[2]), int(XYZ[3])))
                 if not (int(XYZ[0]) == 3):
-                    print "ERROR: This OFF loader can only handle meshes with 3 vertex faces."
-                    print "A face with", XYZ[0], "vertices is included in the file. Exiting."
+                    print("ERROR: This OFF loader can only handle meshes with 3 vertex faces.")
+                    print("A face with", XYZ[0], "vertices is included in the file. Exiting.")
                     sys.exit(0)
             self.nVerts = len(self.verts)
             self.nFaces = len(self.faces)
@@ -170,7 +170,7 @@ class Mesh:
 
         for i,item in enumerate(idx):
             visited = self.bfs_connected_component(item,patch_size)
-            print i, len(visited)
+            print(i, len(visited))
             self.write4visited(visited,save_path+self.name+"_"+str(i)+".off")
         return
 
@@ -245,7 +245,7 @@ class Mesh:
             submeshes = submeshes[:30]
         for i,item in enumerate(submeshes):
             self.write4visited(item,save_path+'/'+self.name+"_"+str(i)+".off")
-        print "Total %d submeshes"%(len(submeshes))
+        print("Total %d submeshes"%(len(submeshes)))
 
 
 def read_annotation_boxes(path):
@@ -263,10 +263,10 @@ def read_annotation_boxes(path):
 
     boxes = []
     points = []
-    for line_iter in xrange(len(lines)):
+    for line_iter in range(len(lines)):
         if 'g Box' in lines[line_iter]:
             box = []
-            for i in xrange(6):
+            for i in range(6):
                 vertex = lines[line_iter + i + 1].split()[1:]
                 vertex = [int(item) - 1 for item in vertex]
                 box.append([verts[vertex[0]], verts[vertex[1]], verts[vertex[2]], verts[vertex[3]]])
@@ -312,10 +312,10 @@ def save_h5():
             edge_point = np.loadtxt(item.replace('/noise_half','/noise_half_edgepoint'))
             face = np.loadtxt(item.replace('/noise_half','/noise_half_face'))
         except:
-            print name
+            print(name)
             continue
         if edge.shape[0]==0 or data.shape[0]==0:
-            print "empty", name
+            print("empty", name)
             continue
         if len(edge.shape) == 1:
             edge = np.reshape(edge,[1,-1])
@@ -325,24 +325,24 @@ def save_h5():
 
         face = np.reshape(face,[-1,9])
         l = face.shape[0]
-        idx = range(l) * (NUM_FACE / l) + range(l)[:NUM_FACE % l]
+        idx = list(range(l)) * (NUM_FACE / l) + list(range(l))[:NUM_FACE % l]
         assert face[idx].shape[0]==NUM_FACE
         assert face[idx].shape[1]==9
         faces.append(face[idx])
 
         l = len(edge_point)
-        idx = range(l) * (2000 / l) + list(np.random.permutation(l)[:2000 % l])
+        idx = list(range(l)) * (2000 / l) + list(np.random.permutation(l)[:2000 % l])
         edge_points.append(edge_point[idx])
 
         idx = np.all(edge[:, 0:3] == edge[:, 3:6], axis=-1)
         edge = edge[idx==False]
         l = edge.shape[0]
-        idx = range(l)*(NUM_EDGE/l)+ range(l)[:NUM_EDGE%l]
+        idx = list(range(l))*(NUM_EDGE/l)+ list(range(l))[:NUM_EDGE%l]
         edges.append(edge[idx])
         names.append(name)
 
     faces = np.asarray(faces)
-    print len(names)
+    print(len(names))
 
     h5_filename = '../h5data/training_data_%d_%d.h5'%(NUM_EDGE,NUM_FACE)
     h5_fout = h5py.File(h5_filename)
@@ -361,7 +361,7 @@ def crop_patch_from_wholepointcloud(off_path):
     current = multiprocessing.current_process()
     id = int(current.name.split('-')[-1])
 
-    print off_path
+    print(off_path)
     point_path = './mesh_simu_pc/' + off_path.split('/')[-1][:-4] + '_noise_half.xyz'
     edge_path = './mesh_edge/' + off_path.split('/')[-1][:-4] + '_edge.xyz'
 
