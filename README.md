@@ -23,6 +23,8 @@ Then, add flags of `-I$TF_INC/external/nsync/public -L$TF_LIB -ltensorflow_frame
 
 We adopt the Dijkstra algorithm implemented in python-graph library, you can follow the instruction in [here](https://github.com/wting/python-graph) to install it. 
 
+(EDIT: or you could use [my fork](https://github.com/prashantraina/python-graph) instead. Go to the `code` directory and run `python setup.py install` and it should work)
+
 ### Usage
 
 1. Clone the repository:
